@@ -20,4 +20,4 @@ spec:
         - path: /
           backend:
            serviceName: bamboo-server
-           servicePort: 8085
+           servicePort: 80
