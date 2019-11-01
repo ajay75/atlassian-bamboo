@@ -28,13 +28,13 @@ spec:
           subPath: ""
       containers:
       - name: bamboo-server
-        image: atlassian/bamboo-server
+        image: atlassian/bamboo-server:6.8
         imagePullPolicy: Always
         env:
         - name: JVM_MINIMUM_MEMORY
-          value: 512m
-        - name: JVM_MAXIMUM_MEMORY
           value: 1024m
+        - name: JVM_MAXIMUM_MEMORY
+          value: 2048m
         volumeMounts:
         - name: bamboo-data
           mountPath: /var/atlassian/application-data/bamboo
@@ -47,34 +47,28 @@ spec:
         - containerPort: 54663
           name: ssh
           protocol: TCP
-       #livenessProbe:
-       #  failureThreshold: 3
-       #  httpGet:
-       #    path: /rest/api/latest/server
-       #    port: http
-       #    scheme: HTTP
-       #  initialDelaySeconds: 120
-       #  periodSeconds: 5
-       #  successThreshold: 1
-       #  timeoutSeconds: 5
-       #readinessProbe:
-       #  failureThreshold: 3
-       #  httpGet:
-       #    path: /rest/api/latest/server
-       #    port: http
-       #    scheme: HTTP
-       #  initialDelaySeconds: 120
-       #  periodSeconds: 5
-       #  successThreshold: 1
-       #  timeoutSeconds: 3
+        livenessProbe:
+          failureThreshold: 3
+          tcpSocket:
+            port: 8085
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          tcpSocket:
+            port: 8085
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+            requests:
+              memory: 1.5Gi  
       volumes:
       - name: bamboo-logs
         emptyDir: {}
-  volumeClaimTemplates:
-  - metadata:
-      name: bamboo-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 100Gi
+      - name: bamboo-data
+        persistentVolumeClaim:
+          claimName: bamboo-data
